@@ -12,6 +12,7 @@ local Title = Instance.new("TextLabel")
 local TabContainer = Instance.new("Frame")
 local Tab1Button = Instance.new("TextButton")
 local Tab2Button = Instance.new("TextButton")
+local Tab3Button = Instance.new("TextButton")
 local ContentFrame = Instance.new("Frame")
 local CloseButton = Instance.new("TextButton")
 local ToggleButton = Instance.new("TextButton")
@@ -25,15 +26,25 @@ local SpeedButton = Instance.new("TextButton")
 local TeleportSection = Instance.new("Frame")
 local TeleportLabel = Instance.new("TextLabel")
 local PlayerList = Instance.new("ScrollingFrame")
-local BringSection = Instance.new("Frame")
-local BringLabel = Instance.new("TextLabel")
-local BringPlayerList = Instance.new("ScrollingFrame")
 
 -- Tab 2 Content (First Person Hacks)
 local FirstPersonContent = Instance.new("Frame")
 local AimbotSection = Instance.new("Frame")
 local AimbotLabel = Instance.new("TextLabel")
 local AimbotToggle = Instance.new("TextButton")
+
+-- Tab 3 Content (Movement Hacks)
+local MovementContent = Instance.new("Frame")
+local FlySection = Instance.new("Frame")
+local FlyLabel = Instance.new("TextLabel")
+local FlyToggle = Instance.new("TextButton")
+local FlySpeedSlider = Instance.new("TextBox")
+local NoclipSection = Instance.new("Frame")
+local NoclipLabel = Instance.new("TextLabel")
+local NoclipToggle = Instance.new("TextButton")
+local AntiAFKSection = Instance.new("Frame")
+local AntiAFKLabel = Instance.new("TextLabel")
+local AntiAFKToggle = Instance.new("TextButton")
 
 -- GUI Properties
 ScreenGui.Name = "LegalMenuGui"
@@ -125,6 +136,22 @@ local Tab2Corner = Instance.new("UICorner")
 Tab2Corner.CornerRadius = UDim.new(0, 8)
 Tab2Corner.Parent = Tab2Button
 
+-- Tab 3 Button (Movement Hacks)
+Tab3Button.Name = "Tab3Button"
+Tab3Button.Parent = TabContainer
+Tab3Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+Tab3Button.BorderSizePixel = 0
+Tab3Button.Position = UDim2.new(0, 10, 0, 130)
+Tab3Button.Size = UDim2.new(1, -20, 0, 50)
+Tab3Button.Font = Enum.Font.GothamBold
+Tab3Button.Text = "Movement\nHacks"
+Tab3Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Tab3Button.TextSize = 13
+
+local Tab3Corner = Instance.new("UICorner")
+Tab3Corner.CornerRadius = UDim.new(0, 8)
+Tab3Corner.Parent = Tab3Button
+
 -- Content Frame
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
@@ -199,7 +226,7 @@ TeleportSection.Parent = GeneralContent
 TeleportSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
 TeleportSection.BorderSizePixel = 0
 TeleportSection.Position = UDim2.new(0, 0, 0, 110)
-TeleportSection.Size = UDim2.new(1, 0, 0, 130)
+TeleportSection.Size = UDim2.new(1, 0, 1, -110)
 
 local TeleportCorner = Instance.new("UICorner")
 TeleportCorner.CornerRadius = UDim.new(0, 8)
@@ -234,48 +261,6 @@ local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = PlayerList
 UIListLayout.SortOrder = Enum.SortOrder.Name
 UIListLayout.Padding = UDim.new(0, 5)
-
--- Bring Section
-BringSection.Name = "BringSection"
-BringSection.Parent = GeneralContent
-BringSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-BringSection.BorderSizePixel = 0
-BringSection.Position = UDim2.new(0, 0, 0, 250)
-BringSection.Size = UDim2.new(1, 0, 1, -250)
-
-local BringCorner = Instance.new("UICorner")
-BringCorner.CornerRadius = UDim.new(0, 8)
-BringCorner.Parent = BringSection
-
-BringLabel.Name = "BringLabel"
-BringLabel.Parent = BringSection
-BringLabel.BackgroundTransparency = 1
-BringLabel.Position = UDim2.new(0, 10, 0, 5)
-BringLabel.Size = UDim2.new(1, -20, 0, 25)
-BringLabel.Font = Enum.Font.GothamBold
-BringLabel.Text = "🔄 BRING PLAYERS TO YOU"
-BringLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
-BringLabel.TextSize = 16
-BringLabel.TextXAlignment = Enum.TextXAlignment.Left
-
--- Bring Player List ScrollingFrame
-BringPlayerList.Name = "BringPlayerList"
-BringPlayerList.Parent = BringSection
-BringPlayerList.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-BringPlayerList.BorderSizePixel = 0
-BringPlayerList.Position = UDim2.new(0, 10, 0, 35)
-BringPlayerList.Size = UDim2.new(1, -20, 1, -45)
-BringPlayerList.CanvasSize = UDim2.new(0, 0, 0, 0)
-BringPlayerList.ScrollBarThickness = 6
-
-local BringListCorner = Instance.new("UICorner")
-BringListCorner.CornerRadius = UDim.new(0, 5)
-BringListCorner.Parent = BringPlayerList
-
-local BringUIListLayout = Instance.new("UIListLayout")
-BringUIListLayout.Parent = BringPlayerList
-BringUIListLayout.SortOrder = Enum.SortOrder.Name
-BringUIListLayout.Padding = UDim.new(0, 5)
 
 -- FIRST PERSON CONTENT (Tab 2)
 FirstPersonContent.Name = "FirstPersonContent"
@@ -322,6 +307,143 @@ local AimbotButtonCorner = Instance.new("UICorner")
 AimbotButtonCorner.CornerRadius = UDim.new(0, 5)
 AimbotButtonCorner.Parent = AimbotToggle
 
+-- MOVEMENT CONTENT (Tab 3)
+MovementContent.Name = "MovementContent"
+MovementContent.Parent = ContentFrame
+MovementContent.BackgroundTransparency = 1
+MovementContent.Size = UDim2.new(1, 0, 1, 0)
+MovementContent.Visible = false
+
+-- Fly Section
+FlySection.Name = "FlySection"
+FlySection.Parent = MovementContent
+FlySection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+FlySection.BorderSizePixel = 0
+FlySection.Position = UDim2.new(0, 0, 0, 0)
+FlySection.Size = UDim2.new(1, 0, 0, 110)
+
+local FlyCorner = Instance.new("UICorner")
+FlyCorner.CornerRadius = UDim.new(0, 8)
+FlyCorner.Parent = FlySection
+
+FlyLabel.Name = "FlyLabel"
+FlyLabel.Parent = FlySection
+FlyLabel.BackgroundTransparency = 1
+FlyLabel.Position = UDim2.new(0, 10, 0, 5)
+FlyLabel.Size = UDim2.new(1, -20, 0, 25)
+FlyLabel.Font = Enum.Font.GothamBold
+FlyLabel.Text = "✈️ FLY MODE"
+FlyLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+FlyLabel.TextSize = 16
+FlyLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+FlySpeedSlider.Name = "FlySpeedSlider"
+FlySpeedSlider.Parent = FlySection
+FlySpeedSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+FlySpeedSlider.BorderSizePixel = 0
+FlySpeedSlider.Position = UDim2.new(0, 10, 0, 35)
+FlySpeedSlider.Size = UDim2.new(1, -20, 0, 30)
+FlySpeedSlider.Font = Enum.Font.Gotham
+FlySpeedSlider.PlaceholderText = "Fly Speed (50)"
+FlySpeedSlider.Text = "50"
+FlySpeedSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlySpeedSlider.TextSize = 14
+
+local FlySpeedCorner = Instance.new("UICorner")
+FlySpeedCorner.CornerRadius = UDim.new(0, 5)
+FlySpeedCorner.Parent = FlySpeedSlider
+
+FlyToggle.Name = "FlyToggle"
+FlyToggle.Parent = FlySection
+FlyToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+FlyToggle.BorderSizePixel = 0
+FlyToggle.Position = UDim2.new(0, 10, 0, 75)
+FlyToggle.Size = UDim2.new(1, -20, 0, 30)
+FlyToggle.Font = Enum.Font.GothamBold
+FlyToggle.Text = "❌ FLY OFF"
+FlyToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlyToggle.TextSize = 14
+
+local FlyButtonCorner = Instance.new("UICorner")
+FlyButtonCorner.CornerRadius = UDim.new(0, 5)
+FlyButtonCorner.Parent = FlyToggle
+
+-- Noclip Section
+NoclipSection.Name = "NoclipSection"
+NoclipSection.Parent = MovementContent
+NoclipSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+NoclipSection.BorderSizePixel = 0
+NoclipSection.Position = UDim2.new(0, 0, 0, 120)
+NoclipSection.Size = UDim2.new(1, 0, 0, 80)
+
+local NoclipCorner = Instance.new("UICorner")
+NoclipCorner.CornerRadius = UDim.new(0, 8)
+NoclipCorner.Parent = NoclipSection
+
+NoclipLabel.Name = "NoclipLabel"
+NoclipLabel.Parent = NoclipSection
+NoclipLabel.BackgroundTransparency = 1
+NoclipLabel.Position = UDim2.new(0, 10, 0, 5)
+NoclipLabel.Size = UDim2.new(1, -20, 0, 25)
+NoclipLabel.Font = Enum.Font.GothamBold
+NoclipLabel.Text = "👻 NOCLIP (Walk Through Walls)"
+NoclipLabel.TextColor3 = Color3.fromRGB(200, 150, 255)
+NoclipLabel.TextSize = 16
+NoclipLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+NoclipToggle.Name = "NoclipToggle"
+NoclipToggle.Parent = NoclipSection
+NoclipToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+NoclipToggle.BorderSizePixel = 0
+NoclipToggle.Position = UDim2.new(0, 10, 0, 40)
+NoclipToggle.Size = UDim2.new(1, -20, 0, 30)
+NoclipToggle.Font = Enum.Font.GothamBold
+NoclipToggle.Text = "❌ NOCLIP OFF"
+NoclipToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoclipToggle.TextSize = 14
+
+local NoclipButtonCorner = Instance.new("UICorner")
+NoclipButtonCorner.CornerRadius = UDim.new(0, 5)
+NoclipButtonCorner.Parent = NoclipToggle
+
+-- Anti-AFK Section
+AntiAFKSection.Name = "AntiAFKSection"
+AntiAFKSection.Parent = MovementContent
+AntiAFKSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+AntiAFKSection.BorderSizePixel = 0
+AntiAFKSection.Position = UDim2.new(0, 0, 0, 210)
+AntiAFKSection.Size = UDim2.new(1, 0, 0, 80)
+
+local AntiAFKCorner = Instance.new("UICorner")
+AntiAFKCorner.CornerRadius = UDim.new(0, 8)
+AntiAFKCorner.Parent = AntiAFKSection
+
+AntiAFKLabel.Name = "AntiAFKLabel"
+AntiAFKLabel.Parent = AntiAFKSection
+AntiAFKLabel.BackgroundTransparency = 1
+AntiAFKLabel.Position = UDim2.new(0, 10, 0, 5)
+AntiAFKLabel.Size = UDim2.new(1, -20, 0, 25)
+AntiAFKLabel.Font = Enum.Font.GothamBold
+AntiAFKLabel.Text = "⏰ ANTI-AFK"
+AntiAFKLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
+AntiAFKLabel.TextSize = 16
+AntiAFKLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+AntiAFKToggle.Name = "AntiAFKToggle"
+AntiAFKToggle.Parent = AntiAFKSection
+AntiAFKToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+AntiAFKToggle.BorderSizePixel = 0
+AntiAFKToggle.Position = UDim2.new(0, 10, 0, 40)
+AntiAFKToggle.Size = UDim2.new(1, -20, 0, 30)
+AntiAFKToggle.Font = Enum.Font.GothamBold
+AntiAFKToggle.Text = "❌ ANTI-AFK OFF"
+AntiAFKToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+AntiAFKToggle.TextSize = 14
+
+local AntiAFKButtonCorner = Instance.new("UICorner")
+AntiAFKButtonCorner.CornerRadius = UDim.new(0, 5)
+AntiAFKButtonCorner.Parent = AntiAFKToggle
+
 -- Toggle Button (um Menu zu öffnen/schließen)
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ScreenGui
@@ -348,14 +470,26 @@ local function switchTab(tabNumber)
 		-- Show General Hacks
 		GeneralContent.Visible = true
 		FirstPersonContent.Visible = false
+		MovementContent.Visible = false
 		Tab1Button.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
 		Tab2Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+		Tab3Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
 	elseif tabNumber == 2 then
 		-- Show First Person Hacks
 		GeneralContent.Visible = false
 		FirstPersonContent.Visible = true
+		MovementContent.Visible = false
 		Tab1Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
 		Tab2Button.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
+		Tab3Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+	elseif tabNumber == 3 then
+		-- Show Movement Hacks
+		GeneralContent.Visible = false
+		FirstPersonContent.Visible = false
+		MovementContent.Visible = true
+		Tab1Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+		Tab2Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+		Tab3Button.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
 	end
 end
 
@@ -365,6 +499,10 @@ end)
 
 Tab2Button.MouseButton1Click:Connect(function()
 	switchTab(2)
+end)
+
+Tab3Button.MouseButton1Click:Connect(function()
+	switchTab(3)
 end)
 
 local function updatePlayerList()
@@ -399,12 +537,39 @@ local function updatePlayerList()
 			UIPadding.PaddingLeft = UDim.new(0, 10)
 			UIPadding.Parent = PlayerButton
 			
-			-- Teleport Function
+			-- Teleport Function (FE Compatible - only teleports YOU)
 			PlayerButton.MouseButton1Click:Connect(function()
 				local targetPlayer = player
 				if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
 					if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-						LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+						local char = LocalPlayer.Character
+						local hrp = char.HumanoidRootPart
+						local humanoid = char:FindFirstChildOfClass("Humanoid")
+						local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame
+						
+						-- Stand next to them with offset
+						local offset = CFrame.new(3, 0, 3)
+						local finalPos = targetPos * offset
+						
+						-- Method: Simple direct teleport (works in most games)
+						hrp.CFrame = finalPos
+						
+						-- Backup method: Also set velocity to zero
+						if hrp:FindFirstChild("BodyVelocity") then
+							hrp.BodyVelocity:Destroy()
+						end
+						hrp.Velocity = Vector3.new(0, 0, 0)
+						hrp.RotVelocity = Vector3.new(0, 0, 0)
+						
+						-- Force humanoid state update
+						if humanoid then
+							humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+						end
+						
+						-- Secondary confirmation teleport
+						task.wait(0.1)
+						hrp.CFrame = finalPos
+						
 						PlayerButton.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
 						wait(0.2)
 						PlayerButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
@@ -417,58 +582,6 @@ local function updatePlayerList()
 	end
 	
 	PlayerList.CanvasSize = UDim2.new(0, 0, 0, yOffset)
-end
-
-local function updateBringList()
-	-- Delete old entries
-	for _, child in pairs(BringPlayerList:GetChildren()) do
-		if child:IsA("TextButton") then
-			child:Destroy()
-		end
-	end
-	
-	local yOffset = 0
-	for _, player in pairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer then
-			local BringButton = Instance.new("TextButton")
-			BringButton.Name = player.Name
-			BringButton.Parent = BringPlayerList
-			BringButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-			BringButton.BorderSizePixel = 0
-			BringButton.Size = UDim2.new(1, -10, 0, 30)
-			BringButton.Font = Enum.Font.Gotham
-			BringButton.Text = "⬅ " .. player.Name
-			BringButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-			BringButton.TextSize = 13
-			BringButton.TextXAlignment = Enum.TextXAlignment.Left
-			BringButton.TextTruncate = Enum.TextTruncate.AtEnd
-			
-			local BringButtonCorner = Instance.new("UICorner")
-			BringButtonCorner.CornerRadius = UDim.new(0, 4)
-			BringButtonCorner.Parent = BringButton
-			
-			local BringUIPadding = Instance.new("UIPadding")
-			BringUIPadding.PaddingLeft = UDim.new(0, 10)
-			BringUIPadding.Parent = BringButton
-			
-			-- Bring Function
-			BringButton.MouseButton1Click:Connect(function()
-				local targetPlayer = player
-				if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-					if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-						targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
-						BringButton.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
-						wait(0.2)
-						BringButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-					end
-				end
-			end)
-			
-			yOffset = yOffset + 35
-		end
-	end
-	
-	BringPlayerList.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 end
 
 -- Speed Hack Function
@@ -512,21 +625,184 @@ end)
 
 -- Update player list
 updatePlayerList()
-updateBringList()
-Players.PlayerAdded:Connect(function()
-	updatePlayerList()
-	updateBringList()
-end)
-Players.PlayerRemoving:Connect(function()
-	updatePlayerList()
-	updateBringList()
-end)
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
 
 -- Auto-Update every 3 seconds
 spawn(function()
 	while wait(3) do
 		updatePlayerList()
-		updateBringList()
+	end
+end)
+
+-- FLY SYSTEM
+local flyEnabled = false
+local flySpeed = 50
+local flyControl = {f = 0, b = 0, l = 0, r = 0}
+local flyConnection = nil
+local flyBV = nil
+local flyBG = nil
+
+FlyToggle.MouseButton1Click:Connect(function()
+	flyEnabled = not flyEnabled
+	flySpeed = tonumber(FlySpeedSlider.Text) or 50
+	
+	if flyEnabled then
+		FlyToggle.Text = "✓ FLY ON"
+		FlyToggle.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
+		
+		local char = LocalPlayer.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			local hrp = char.HumanoidRootPart
+			
+			-- Create BodyVelocity
+			flyBV = Instance.new("BodyVelocity")
+			flyBV.Velocity = Vector3.new(0, 0, 0)
+			flyBV.MaxForce = Vector3.new(9e4, 9e4, 9e4)
+			flyBV.Parent = hrp
+			
+			-- Create BodyGyro
+			flyBG = Instance.new("BodyGyro")
+			flyBG.MaxTorque = Vector3.new(9e4, 9e4, 9e4)
+			flyBG.CFrame = hrp.CFrame
+			flyBG.Parent = hrp
+			
+			-- Fly loop
+			flyConnection = RunService.RenderStepped:Connect(function()
+				if not flyEnabled then return end
+				
+				local cam = workspace.CurrentCamera
+				local speed = flySpeed
+				
+				-- Calculate movement
+				local moveVector = Vector3.new(
+					flyControl.r - flyControl.l,
+					0,
+					flyControl.f - flyControl.b
+				)
+				
+				if moveVector:Dot(moveVector) > 0 then
+					moveVector = moveVector.Unit
+				end
+				
+				flyBV.Velocity = (
+					cam.CFrame.LookVector * moveVector.Z +
+					cam.CFrame.RightVector * moveVector.X
+				) * speed
+				
+				flyBG.CFrame = cam.CFrame
+			end)
+		end
+	else
+		FlyToggle.Text = "❌ FLY OFF"
+		FlyToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		
+		-- Disable fly
+		if flyConnection then
+			flyConnection:Disconnect()
+			flyConnection = nil
+		end
+		if flyBV then flyBV:Destroy() end
+		if flyBG then flyBG:Destroy() end
+	end
+end)
+
+-- Fly controls
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or not flyEnabled then return end
+	
+	if input.KeyCode == Enum.KeyCode.W then
+		flyControl.f = 1
+	elseif input.KeyCode == Enum.KeyCode.S then
+		flyControl.b = 1
+	elseif input.KeyCode == Enum.KeyCode.A then
+		flyControl.l = 1
+	elseif input.KeyCode == Enum.KeyCode.D then
+		flyControl.r = 1
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.W then
+		flyControl.f = 0
+	elseif input.KeyCode == Enum.KeyCode.S then
+		flyControl.b = 0
+	elseif input.KeyCode == Enum.KeyCode.A then
+		flyControl.l = 0
+	elseif input.KeyCode == Enum.KeyCode.D then
+		flyControl.r = 0
+	end
+end)
+
+-- NOCLIP SYSTEM
+local noclipEnabled = false
+local noclipConnection = nil
+
+NoclipToggle.MouseButton1Click:Connect(function()
+	noclipEnabled = not noclipEnabled
+	
+	if noclipEnabled then
+		NoclipToggle.Text = "✓ NOCLIP ON"
+		NoclipToggle.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
+		
+		noclipConnection = RunService.Stepped:Connect(function()
+			if not noclipEnabled then return end
+			
+			local char = LocalPlayer.Character
+			if char then
+				for _, part in pairs(char:GetDescendants()) do
+					if part:IsA("BasePart") then
+						part.CanCollide = false
+					end
+				end
+			end
+		end)
+	else
+		NoclipToggle.Text = "❌ NOCLIP OFF"
+		NoclipToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		
+		if noclipConnection then
+			noclipConnection:Disconnect()
+			noclipConnection = nil
+		end
+		
+		-- Re-enable collisions
+		local char = LocalPlayer.Character
+		if char then
+			for _, part in pairs(char:GetDescendants()) do
+				if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+					part.CanCollide = true
+				end
+			end
+		end
+	end
+end)
+
+-- ANTI-AFK SYSTEM
+local antiAFKEnabled = false
+local antiAFKConnection = nil
+
+AntiAFKToggle.MouseButton1Click:Connect(function()
+	antiAFKEnabled = not antiAFKEnabled
+	
+	if antiAFKEnabled then
+		AntiAFKToggle.Text = "✓ ANTI-AFK ON"
+		AntiAFKToggle.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
+		
+		-- Bypass Roblox's Idle tracker
+		local VirtualUser = game:GetService("VirtualUser")
+		antiAFKConnection = LocalPlayer.Idled:Connect(function()
+			VirtualUser:CaptureController()
+			VirtualUser:ClickButton2(Vector2.new())
+		end)
+	else
+		AntiAFKToggle.Text = "❌ ANTI-AFK OFF"
+		AntiAFKToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		
+		if antiAFKConnection then
+			antiAFKConnection:Disconnect()
+			antiAFKConnection = nil
+		end
 	end
 end)
 
