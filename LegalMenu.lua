@@ -25,6 +25,9 @@ local SpeedButton = Instance.new("TextButton")
 local TeleportSection = Instance.new("Frame")
 local TeleportLabel = Instance.new("TextLabel")
 local PlayerList = Instance.new("ScrollingFrame")
+local BringSection = Instance.new("Frame")
+local BringLabel = Instance.new("TextLabel")
+local BringPlayerList = Instance.new("ScrollingFrame")
 
 -- Tab 2 Content (First Person Hacks)
 local FirstPersonContent = Instance.new("Frame")
@@ -196,7 +199,7 @@ TeleportSection.Parent = GeneralContent
 TeleportSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
 TeleportSection.BorderSizePixel = 0
 TeleportSection.Position = UDim2.new(0, 0, 0, 110)
-TeleportSection.Size = UDim2.new(1, 0, 1, -110)
+TeleportSection.Size = UDim2.new(1, 0, 0, 130)
 
 local TeleportCorner = Instance.new("UICorner")
 TeleportCorner.CornerRadius = UDim.new(0, 8)
@@ -231,6 +234,48 @@ local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = PlayerList
 UIListLayout.SortOrder = Enum.SortOrder.Name
 UIListLayout.Padding = UDim.new(0, 5)
+
+-- Bring Section
+BringSection.Name = "BringSection"
+BringSection.Parent = GeneralContent
+BringSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+BringSection.BorderSizePixel = 0
+BringSection.Position = UDim2.new(0, 0, 0, 250)
+BringSection.Size = UDim2.new(1, 0, 1, -250)
+
+local BringCorner = Instance.new("UICorner")
+BringCorner.CornerRadius = UDim.new(0, 8)
+BringCorner.Parent = BringSection
+
+BringLabel.Name = "BringLabel"
+BringLabel.Parent = BringSection
+BringLabel.BackgroundTransparency = 1
+BringLabel.Position = UDim2.new(0, 10, 0, 5)
+BringLabel.Size = UDim2.new(1, -20, 0, 25)
+BringLabel.Font = Enum.Font.GothamBold
+BringLabel.Text = "🔄 BRING PLAYERS TO YOU"
+BringLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
+BringLabel.TextSize = 16
+BringLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Bring Player List ScrollingFrame
+BringPlayerList.Name = "BringPlayerList"
+BringPlayerList.Parent = BringSection
+BringPlayerList.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+BringPlayerList.BorderSizePixel = 0
+BringPlayerList.Position = UDim2.new(0, 10, 0, 35)
+BringPlayerList.Size = UDim2.new(1, -20, 1, -45)
+BringPlayerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+BringPlayerList.ScrollBarThickness = 6
+
+local BringListCorner = Instance.new("UICorner")
+BringListCorner.CornerRadius = UDim.new(0, 5)
+BringListCorner.Parent = BringPlayerList
+
+local BringUIListLayout = Instance.new("UIListLayout")
+BringUIListLayout.Parent = BringPlayerList
+BringUIListLayout.SortOrder = Enum.SortOrder.Name
+BringUIListLayout.Padding = UDim.new(0, 5)
 
 -- FIRST PERSON CONTENT (Tab 2)
 FirstPersonContent.Name = "FirstPersonContent"
@@ -374,6 +419,58 @@ local function updatePlayerList()
 	PlayerList.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 end
 
+local function updateBringList()
+	-- Delete old entries
+	for _, child in pairs(BringPlayerList:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+	
+	local yOffset = 0
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			local BringButton = Instance.new("TextButton")
+			BringButton.Name = player.Name
+			BringButton.Parent = BringPlayerList
+			BringButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+			BringButton.BorderSizePixel = 0
+			BringButton.Size = UDim2.new(1, -10, 0, 30)
+			BringButton.Font = Enum.Font.Gotham
+			BringButton.Text = "⬅ " .. player.Name
+			BringButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+			BringButton.TextSize = 13
+			BringButton.TextXAlignment = Enum.TextXAlignment.Left
+			BringButton.TextTruncate = Enum.TextTruncate.AtEnd
+			
+			local BringButtonCorner = Instance.new("UICorner")
+			BringButtonCorner.CornerRadius = UDim.new(0, 4)
+			BringButtonCorner.Parent = BringButton
+			
+			local BringUIPadding = Instance.new("UIPadding")
+			BringUIPadding.PaddingLeft = UDim.new(0, 10)
+			BringUIPadding.Parent = BringButton
+			
+			-- Bring Function
+			BringButton.MouseButton1Click:Connect(function()
+				local targetPlayer = player
+				if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+					if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+						targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+						BringButton.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
+						wait(0.2)
+						BringButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+					end
+				end
+			end)
+			
+			yOffset = yOffset + 35
+		end
+	end
+	
+	BringPlayerList.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+end
+
 -- Speed Hack Function
 SpeedButton.MouseButton1Click:Connect(function()
 	local speedValue = tonumber(SpeedSlider.Text)
@@ -415,13 +512,21 @@ end)
 
 -- Update player list
 updatePlayerList()
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
+updateBringList()
+Players.PlayerAdded:Connect(function()
+	updatePlayerList()
+	updateBringList()
+end)
+Players.PlayerRemoving:Connect(function()
+	updatePlayerList()
+	updateBringList()
+end)
 
 -- Auto-Update every 3 seconds
 spawn(function()
 	while wait(3) do
 		updatePlayerList()
+		updateBringList()
 	end
 end)
 
