@@ -290,7 +290,7 @@ AimbotLabel.BackgroundTransparency = 1
 AimbotLabel.Position = UDim2.new(0, 10, 0, 5)
 AimbotLabel.Size = UDim2.new(1, -20, 0, 25)
 AimbotLabel.Font = Enum.Font.GothamBold
-AimbotLabel.Text = "🎯 AIMBOT"
+AimbotLabel.Text = "🎯 AIMBOT (Team-Aware)"
 AimbotLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
 AimbotLabel.TextSize = 16
 AimbotLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -964,13 +964,22 @@ RunService.RenderStepped:Connect(function()
 	local closestPlayer = nil
 	local closestDistance = math.huge
 	
-	-- Find closest player
+	-- Find closest player (excluding teammates)
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character then
 			local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
 			local targetHead = player.Character:FindFirstChild("Head")
 			
-			if targetRoot and targetHead then
+			-- Check if player is on same team (skip if same team)
+			local isTeammate = false
+			if LocalPlayer.Team and player.Team then
+				if LocalPlayer.Team == player.Team then
+					isTeammate = true
+				end
+			end
+			
+			-- Only target if not a teammate
+			if not isTeammate and targetRoot and targetHead then
 				local distance = (humanoidRootPart.Position - targetRoot.Position).Magnitude
 				
 				if distance < closestDistance then
@@ -981,7 +990,7 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 	
-	-- Look at closest player
+	-- Look at closest player (enemy only)
 	if closestPlayer and closestPlayer.Character then
 		local targetHead = closestPlayer.Character:FindFirstChild("Head")
 		if targetHead then
