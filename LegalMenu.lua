@@ -45,6 +45,9 @@ local NoclipToggle = Instance.new("TextButton")
 local AntiAFKSection = Instance.new("Frame")
 local AntiAFKLabel = Instance.new("TextLabel")
 local AntiAFKToggle = Instance.new("TextButton")
+local AntiRagdollSection = Instance.new("Frame")
+local AntiRagdollLabel = Instance.new("TextLabel")
+local AntiRagdollToggle = Instance.new("TextButton")
 
 -- GUI Properties
 ScreenGui.Name = "LegalMenuGui"
@@ -444,6 +447,44 @@ local AntiAFKButtonCorner = Instance.new("UICorner")
 AntiAFKButtonCorner.CornerRadius = UDim.new(0, 5)
 AntiAFKButtonCorner.Parent = AntiAFKToggle
 
+-- Anti-Ragdoll Section
+AntiRagdollSection.Name = "AntiRagdollSection"
+AntiRagdollSection.Parent = MovementContent
+AntiRagdollSection.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+AntiRagdollSection.BorderSizePixel = 0
+AntiRagdollSection.Position = UDim2.new(0, 0, 0, 300)
+AntiRagdollSection.Size = UDim2.new(1, 0, 0, 80)
+
+local AntiRagdollCorner = Instance.new("UICorner")
+AntiRagdollCorner.CornerRadius = UDim.new(0, 8)
+AntiRagdollCorner.Parent = AntiRagdollSection
+
+AntiRagdollLabel.Name = "AntiRagdollLabel"
+AntiRagdollLabel.Parent = AntiRagdollSection
+AntiRagdollLabel.BackgroundTransparency = 1
+AntiRagdollLabel.Position = UDim2.new(0, 10, 0, 5)
+AntiRagdollLabel.Size = UDim2.new(1, -20, 0, 25)
+AntiRagdollLabel.Font = Enum.Font.GothamBold
+AntiRagdollLabel.Text = "🚫 ANTI-RAGDOLL"
+AntiRagdollLabel.TextColor3 = Color3.fromRGB(255, 150, 150)
+AntiRagdollLabel.TextSize = 16
+AntiRagdollLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+AntiRagdollToggle.Name = "AntiRagdollToggle"
+AntiRagdollToggle.Parent = AntiRagdollSection
+AntiRagdollToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+AntiRagdollToggle.BorderSizePixel = 0
+AntiRagdollToggle.Position = UDim2.new(0, 10, 0, 40)
+AntiRagdollToggle.Size = UDim2.new(1, -20, 0, 30)
+AntiRagdollToggle.Font = Enum.Font.GothamBold
+AntiRagdollToggle.Text = "❌ ANTI-RAGDOLL OFF"
+AntiRagdollToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+AntiRagdollToggle.TextSize = 14
+
+local AntiRagdollButtonCorner = Instance.new("UICorner")
+AntiRagdollButtonCorner.CornerRadius = UDim.new(0, 5)
+AntiRagdollButtonCorner.Parent = AntiRagdollToggle
+
 -- Toggle Button (um Menu zu öffnen/schließen)
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ScreenGui
@@ -537,7 +578,7 @@ local function updatePlayerList()
 			UIPadding.PaddingLeft = UDim.new(0, 10)
 			UIPadding.Parent = PlayerButton
 			
-			-- Teleport Function (FE Compatible - only teleports YOU)
+			-- Teleport Function (Game-wide teleport with chunk loading)
 			PlayerButton.MouseButton1Click:Connect(function()
 				local targetPlayer = player
 				if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -545,33 +586,59 @@ local function updatePlayerList()
 						local char = LocalPlayer.Character
 						local hrp = char.HumanoidRootPart
 						local humanoid = char:FindFirstChildOfClass("Humanoid")
-						local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame
+						local targetRoot = targetPlayer.Character.HumanoidRootPart
+						local targetPos = targetRoot.CFrame
+						
+						-- Calculate distance
+						local distance = (hrp.Position - targetRoot.Position).Magnitude
 						
 						-- Stand next to them with offset
 						local offset = CFrame.new(3, 0, 3)
 						local finalPos = targetPos * offset
 						
-						-- Method: Simple direct teleport (works in most games)
-						hrp.CFrame = finalPos
-						
-						-- Backup method: Also set velocity to zero
-						if hrp:FindFirstChild("BodyVelocity") then
-							hrp.BodyVelocity:Destroy()
+						-- Disable character physics temporarily
+						if humanoid then
+							humanoid.PlatformStand = true
 						end
+						
+						-- Remove all body movers
+						for _, obj in pairs(hrp:GetChildren()) do
+							if obj:IsA("BodyMover") then
+								obj:Destroy()
+							end
+						end
+						
+						-- Reset velocity completely
 						hrp.Velocity = Vector3.new(0, 0, 0)
 						hrp.RotVelocity = Vector3.new(0, 0, 0)
+						hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+						hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
 						
-						-- Force humanoid state update
+						-- Direct teleport
+						hrp.CFrame = finalPos
+						
+						-- For long distances, use multiple teleports to ensure chunk loading
+						if distance > 500 then
+							-- Teleport in steps for chunk loading
+							task.wait(0.05)
+							hrp.CFrame = finalPos
+							task.wait(0.05)
+							hrp.CFrame = finalPos
+						end
+						
+						-- Re-enable physics after short delay
+						task.wait(0.15)
 						if humanoid then
+							humanoid.PlatformStand = false
 							humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 						end
 						
-						-- Secondary confirmation teleport
-						task.wait(0.1)
+						-- Final position confirmation
+						task.wait(0.05)
 						hrp.CFrame = finalPos
 						
 						PlayerButton.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
-						wait(0.2)
+						task.wait(0.2)
 						PlayerButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
 					end
 				end
@@ -802,6 +869,68 @@ AntiAFKToggle.MouseButton1Click:Connect(function()
 		if antiAFKConnection then
 			antiAFKConnection:Disconnect()
 			antiAFKConnection = nil
+		end
+	end
+end)
+
+-- ANTI-RAGDOLL SYSTEM
+local antiRagdollEnabled = false
+local antiRagdollConnection = nil
+
+AntiRagdollToggle.MouseButton1Click:Connect(function()
+	antiRagdollEnabled = not antiRagdollEnabled
+	
+	if antiRagdollEnabled then
+		AntiRagdollToggle.Text = "✓ ANTI-RAGDOLL ON"
+		AntiRagdollToggle.BackgroundColor3 = Color3.fromRGB(70, 180, 70)
+		
+		antiRagdollConnection = RunService.Stepped:Connect(function()
+			if not antiRagdollEnabled then return end
+			
+			local char = LocalPlayer.Character
+			if char then
+				local humanoid = char:FindFirstChildOfClass("Humanoid")
+				
+				-- Prevent ragdoll states
+				if humanoid then
+					-- Keep humanoid in normal states
+					if humanoid:GetState() == Enum.HumanoidStateType.FallingDown or
+					   humanoid:GetState() == Enum.HumanoidStateType.Ragdoll or
+					   humanoid:GetState() == Enum.HumanoidStateType.Physics then
+						humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+					end
+					
+					-- Disable platform stand
+					if humanoid.PlatformStand then
+						humanoid.PlatformStand = false
+					end
+				end
+				
+				-- Remove/prevent ragdoll joints
+				for _, obj in pairs(char:GetDescendants()) do
+					if obj:IsA("Motor6D") then
+						obj.Enabled = true
+					elseif obj:IsA("BallSocketConstraint") or obj:IsA("NoCollisionConstraint") then
+						-- Remove ragdoll constraints
+						obj:Destroy()
+					end
+				end
+				
+				-- Keep body parts properly attached
+				for _, part in pairs(char:GetDescendants()) do
+					if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+						part.Massless = false
+					end
+				end
+			end
+		end)
+	else
+		AntiRagdollToggle.Text = "❌ ANTI-RAGDOLL OFF"
+		AntiRagdollToggle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		
+		if antiRagdollConnection then
+			antiRagdollConnection:Disconnect()
+			antiRagdollConnection = nil
 		end
 	end
 end)
