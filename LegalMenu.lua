@@ -16,6 +16,7 @@ local Tab3Button = Instance.new("TextButton")
 local ContentFrame = Instance.new("Frame")
 local CloseButton = Instance.new("TextButton")
 local ToggleButton = Instance.new("TextButton")
+local UnloadButton = Instance.new("TextButton")
 
 -- Tab 1 Content (General Hacks)
 local GeneralContent = Instance.new("Frame")
@@ -154,6 +155,22 @@ Tab3Button.TextSize = 13
 local Tab3Corner = Instance.new("UICorner")
 Tab3Corner.CornerRadius = UDim.new(0, 8)
 Tab3Corner.Parent = Tab3Button
+
+-- Unload Button (at bottom of sidebar)
+UnloadButton.Name = "UnloadButton"
+UnloadButton.Parent = TabContainer
+UnloadButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+UnloadButton.BorderSizePixel = 0
+UnloadButton.Position = UDim2.new(0, 10, 1, -60)
+UnloadButton.Size = UDim2.new(1, -20, 0, 50)
+UnloadButton.Font = Enum.Font.GothamBold
+UnloadButton.Text = "UNLOAD\nMENU"
+UnloadButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+UnloadButton.TextSize = 13
+
+local UnloadCorner = Instance.new("UICorner")
+UnloadCorner.CornerRadius = UDim.new(0, 8)
+UnloadCorner.Parent = UnloadButton
 
 -- Content Frame
 ContentFrame.Name = "ContentFrame"
@@ -964,39 +981,106 @@ RunService.RenderStepped:Connect(function()
 	local closestPlayer = nil
 	local closestDistance = math.huge
 	
-	-- Find closest player (excluding teammates)
+	-- Find closest ENEMY player
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character then
 			local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
 			local targetHead = player.Character:FindFirstChild("Head")
 			
-			-- Check if player is on same team (skip if same team)
+			-- Multiple team detection methods
 			local isTeammate = false
-			if LocalPlayer.Team and player.Team then
-				if LocalPlayer.Team == player.Team then
+			
+			-- Method 1: Check Team property
+			if player.Team and LocalPlayer.Team then
+				if player.Team == LocalPlayer.Team then
 					isTeammate = true
 				end
 			end
 			
-			-- Only target if not a teammate
-			if not isTeammate and targetRoot and targetHead then
-				local distance = (humanoidRootPart.Position - targetRoot.Position).Magnitude
+			-- Method 2: Check TeamColor
+			if player.TeamColor and LocalPlayer.TeamColor then
+				if player.TeamColor == LocalPlayer.TeamColor then
+					isTeammate = true
+				end
+			end
+			
+			-- Method 3: Check for team-colored parts (common in games like Rivals)
+			if not isTeammate and player.Character and LocalPlayer.Character then
+				-- Check for body colors or team indicators
+				local targetBodyColors = player.Character:FindFirstChild("Body Colors")
+				local myBodyColors = LocalPlayer.Character:FindFirstChild("Body Colors")
 				
-				if distance < closestDistance then
-					closestDistance = distance
-					closestPlayer = player
+				-- Some games use specific parts for team indication
+				for _, part in pairs(player.Character:GetChildren()) do
+					if part:IsA("BasePart") and part.Name:lower():find("team") then
+						for _, myPart in pairs(LocalPlayer.Character:GetChildren()) do
+							if myPart:IsA("BasePart") and myPart.Name == part.Name then
+								if myPart.Color == part.Color or myPart.BrickColor == part.BrickColor then
+									isTeammate = true
+									break
+								end
+							end
+						end
+					end
+				end
+			end
+			
+			-- Only target if NOT a teammate
+			if not isTeammate and targetRoot and targetHead then
+				-- Additional check: Make sure target is alive
+				local targetHumanoid = player.Character:FindFirstChild("Humanoid")
+				if targetHumanoid and targetHumanoid.Health > 0 then
+					local distance = (humanoidRootPart.Position - targetRoot.Position).Magnitude
+					
+					if distance < closestDistance then
+						closestDistance = distance
+						closestPlayer = player
+					end
 				end
 			end
 		end
 	end
 	
-	-- Look at closest player (enemy only)
+	-- Look at closest ENEMY player only
 	if closestPlayer and closestPlayer.Character then
 		local targetHead = closestPlayer.Character:FindFirstChild("Head")
 		if targetHead then
 			Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetHead.Position)
 		end
 	end
+end)
+
+-- Unload Button Function
+UnloadButton.MouseButton1Click:Connect(function()
+	-- Disable all active features
+	flyEnabled = false
+	noclipEnabled = false
+	antiAFKEnabled = false
+	antiRagdollEnabled = false
+	aimbotEnabled = false
+	
+	-- Disconnect all connections
+	if flyConnection then flyConnection:Disconnect() end
+	if flyBV then flyBV:Destroy() end
+	if flyBG then flyBG:Destroy() end
+	if noclipConnection then noclipConnection:Disconnect() end
+	if antiAFKConnection then antiAFKConnection:Disconnect() end
+	if antiRagdollConnection then antiRagdollConnection:Disconnect() end
+	
+	-- Re-enable collisions if noclip was on
+	local char = LocalPlayer.Character
+	if char then
+		for _, part in pairs(char:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+				part.CanCollide = true
+			end
+		end
+	end
+	
+	-- Destroy the GUI
+	ScreenGui:Destroy()
+	
+	print("Legal Menu unloaded successfully!")
 end)
 
 print("Legal Menu loaded! Press F3 to open/close")
