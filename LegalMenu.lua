@@ -793,7 +793,9 @@ end)
 
 -- Fly controls
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed or not flyEnabled then return end
+	if gameProcessed then return end
+	
+	if not flyEnabled then return end
 	
 	if input.KeyCode == Enum.KeyCode.W then
 		flyControl.f = 1
@@ -803,6 +805,16 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		flyControl.l = 1
 	elseif input.KeyCode == Enum.KeyCode.D then
 		flyControl.r = 1
+	elseif input.KeyCode == Enum.KeyCode.Space then
+		-- Up
+		if flyBV then
+			flyBV.Velocity = flyBV.Velocity + Vector3.new(0, flySpeed, 0)
+		end
+	elseif input.KeyCode == Enum.KeyCode.LeftShift then
+		-- Down
+		if flyBV then
+			flyBV.Velocity = flyBV.Velocity + Vector3.new(0, -flySpeed, 0)
+		end
 	end
 end)
 
@@ -981,7 +993,7 @@ RunService.RenderStepped:Connect(function()
 	local closestEnemy = nil
 	local closestDistance = math.huge
 	
-	-- Find closest ENEMY (anyone NOT on your team)
+	-- Find closest enemy player
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character then
 			local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
@@ -993,21 +1005,30 @@ RunService.RenderStepped:Connect(function()
 				continue
 			end
 			
-			-- Default: everyone is ENEMY unless proven teammate
-			local isEnemy = true
-			
-			-- Check if player IS on same team (mark as NOT enemy)
-			if player.Team and LocalPlayer.Team and player.Team == LocalPlayer.Team then
-				isEnemy = false
+			if not targetRoot or not targetHead then
+				continue
 			end
 			
-			-- Also check TeamColor
-			if player.TeamColor and LocalPlayer.TeamColor and player.TeamColor == LocalPlayer.TeamColor then
-				isEnemy = false
+			-- Default: Target everyone UNLESS they're on same team
+			local shouldTarget = true
+			
+			-- Only check teams if both players have teams
+			if player.Team ~= nil and LocalPlayer.Team ~= nil then
+				-- Both have teams - check if same
+				if player.Team == LocalPlayer.Team then
+					shouldTarget = false -- Same team, don't target
+				end
 			end
 			
-			-- Only aim at ENEMIES
-			if isEnemy and targetRoot and targetHead then
+			-- Double check with TeamColor if available
+			if shouldTarget and player.TeamColor ~= nil and LocalPlayer.TeamColor ~= nil then
+				if player.TeamColor == LocalPlayer.TeamColor then
+					shouldTarget = false -- Same team color, don't target
+				end
+			end
+			
+			-- Target this player
+			if shouldTarget then
 				local distance = (humanoidRootPart.Position - targetRoot.Position).Magnitude
 				
 				if distance < closestDistance then
@@ -1018,7 +1039,7 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 	
-	-- Aim at closest ENEMY
+	-- Aim at closest enemy
 	if closestEnemy and closestEnemy.Character then
 		local targetHead = closestEnemy.Character:FindFirstChild("Head")
 		if targetHead then
